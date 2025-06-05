@@ -18,7 +18,7 @@ Deduplicates Playlists and your Favorite Songs from the terminal.
 - aiohttp
 - tabulate
 
-### Instalation:
+### Installation:
 1. Clone this git
 2. Run
     ```
@@ -30,3 +30,8 @@ Deduplicates Playlists and your Favorite Songs from the terminal.
     ```
     Follow this [guide](https://playwright.dev/python/docs/intro) for further instructions for playwright.
 
+
+## Usage
+1. Double click `run.bat` or launch it from the terminal (preferred).
+2. Follow instructions in the terminal
+> For debugging purposes, directly launch the main.py file
