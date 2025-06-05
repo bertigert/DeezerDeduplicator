@@ -4,6 +4,7 @@ Deduplicates Playlists and your Favorite Songs from the terminal.
 ## How It Works
 1. Uses playwright to let the user manually log in and gather the login information
     - You need to log in once, the cookies get saved and you only need to login again once they expire
+    - Stored cookies are encrypted (encryption file is right there, but should still help)
 2. Gathers all playlists
 3. Lets the user chose which ones to deduplicate
 4. 3 Options to deduplicate

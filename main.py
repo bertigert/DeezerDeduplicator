@@ -1,5 +1,3 @@
-
-import json
 import asyncio
 from pathlib import Path
 import logging
@@ -8,6 +6,7 @@ from tabulate import tabulate
 
 from library.api import API, MV 
 import library.browser as browser
+import library.crypt as crypt
 
 async def deduplicate_playlist(playlist: list[int | str], deduplicate_by: int, _api: API, only_show: bool) -> tuple[list[dict], str, int | str] | tuple[None, str, int | str]:
     """
@@ -101,6 +100,7 @@ async def deduplicate_playlists(playlists: list[tuple[int | str]], deduplicate_b
     
     return playlists_removed_songs
 
+
 async def login(cookies=None) -> tuple[dict, dict, dict] | tuple[None, None, None]:
     """
     Logs in to Deezer using cookies or manual login if cookies are not provided or invalid.
@@ -109,24 +109,33 @@ async def login(cookies=None) -> tuple[dict, dict, dict] | tuple[None, None, Non
     Returns:
         tuple: User data, cookies, and API request data if login is successful, None otherwise.
     """
+    cookie_file = "cookies.json.enc"
+    key_file = "cookie.key"
 
     if not cookies:
-        if not Path("cookies.json").exists():
+        if not Path(cookie_file).exists():
             logging.info("No cookies found. Please log in manually.")
-            cookies = await browser.get_cookies_with_manual_login()
-            if cookies:
+            cookies = await browser.get_cookies_with_manual_login(cookie_file_path=cookie_file)
+            if cookies is None:
                 logging.error("Failed to retrieve cookies with manual login.")
                 return None, None, None
         else: 
-            with open("cookies.json", "r") as f:
-                cookies = json.load(f)
+            key = crypt.get_encryption_key(key_file)
+            encrypted = Path(cookie_file).read_bytes()
+            cookies = crypt.decrypt_cookies(encrypted, key)
+            if cookies is None:
+                logging.error("Failed to decrypt cookies. Please log in manually.")
+                cookies = await browser.get_cookies_with_manual_login(cookie_file_path=cookie_file)
+                if cookies is None:
+                    logging.error("Failed to retrieve cookies with manual login.")
+                    return None, None, None
         
     async with API(cookies) as api:
         user_data = await api.validate_cookies()
         if not user_data:
             logging.warning("Cookies are invalid or expired. Attempting to log in manually.")
-            cookies = await browser.get_cookies_with_manual_login()
-            if cookies:
+            cookies = await browser.get_cookies_with_manual_login(cookie_file_path=cookie_file)
+            if cookies is not None:
                 logging.info("Cookies successfully retrieved with manual login.")
                 return await login(cookies=cookies)
             else:

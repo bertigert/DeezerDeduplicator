@@ -1,17 +1,18 @@
 import asyncio
-import json
 from pathlib import Path
 from playwright.async_api import async_playwright
 import logging
 
-async def get_cookies_with_manual_login(url: str="https://account.deezer.com/login/", cookie_file_path:str ="cookies.json") -> dict | None:
+import library.crypt as crypt
+
+async def get_cookies_with_manual_login(url: str="https://account.deezer.com/login/", cookie_file_path:str ="cookies.json.enc") -> dict | None:
     """
     Opens a URL in a browser and waits until a cookie named 'account_id' is created.
-    Then saves all cookies to a local file and closes the browser.
+    Then saves all cookies to a local file (encrypted) and closes the browser.
     
     Args:
         url (str): URL to navigate to
-        cookie_file_path (str): Path where cookies will be saved
+        cookie_file_path (str): Path where cookies will be saved (encrypted)
     
     Returns:
         dict: Dictionary of cookies if successful, None otherwise
@@ -47,8 +48,10 @@ async def get_cookies_with_manual_login(url: str="https://account.deezer.com/log
         parent_dir = Path(__file__).parent.parent
         cookie_file_path = parent_dir/cookie_file_path
 
-        Path(cookie_file_path).write_text(json.dumps(cookies))
-        logging.debug(f"Cookies saved to {cookie_file_path}")
+        key = crypt.get_encryption_key()
+        encrypted = crypt.encrypt_cookies(cookies, key)
+        Path(cookie_file_path).write_bytes(encrypted)
+        logging.debug(f"Encrypted cookies saved to {cookie_file_path}")
         
         await browser.close()
         return cookies
