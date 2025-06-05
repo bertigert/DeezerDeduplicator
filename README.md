@@ -18,6 +18,7 @@ Deduplicates Playlists and your Favorite Songs from the terminal.
 - playwright
 - aiohttp
 - tabulate
+- cryptography
 
 ### Installation:
 1. Clone this git
