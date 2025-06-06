@@ -49,7 +49,9 @@ async def get_cookies_with_manual_login(url: str="https://account.deezer.com/log
         cookie_file_path = parent_dir/cookie_file_path
 
         key = crypt.get_encryption_key()
-        encrypted = crypt.encrypt_cookies(cookies, key)
+        encrypted = crypt.encrypt_cookies({ # only the sid cookie is needed
+            "sid": cookies["sid"]
+        }, key)
         Path(cookie_file_path).write_bytes(encrypted)
         logging.debug(f"Encrypted cookies saved to {cookie_file_path}")
         
@@ -67,7 +69,7 @@ def cookies_to_aiohttp(cookies: list) -> dict:
     Returns:
         dict: Dictionary of cookies for aiohttp
     """
-    return {cookie["name"]: cookie["value"] for cookie in cookies if cookie["domain"] == ".deezer.com"}
+    return {cookie["name"]: cookie["value"] for cookie in cookies}
 
 if __name__ == "__main__":
     asyncio.run(get_cookies_with_manual_login("https://www.deezer.com"))

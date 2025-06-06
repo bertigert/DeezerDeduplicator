@@ -110,7 +110,6 @@ async def login(cookies=None) -> tuple[dict, dict, dict] | tuple[None, None, Non
         tuple: User data, cookies, and API request data if login is successful, None otherwise.
     """
     cookie_file = "cookies.json.enc"
-    key_file = "cookie.key"
 
     if not cookies:
         if not Path(cookie_file).exists():
@@ -120,7 +119,7 @@ async def login(cookies=None) -> tuple[dict, dict, dict] | tuple[None, None, Non
                 logging.error("Failed to retrieve cookies with manual login.")
                 return None, None, None
         else: 
-            key = crypt.get_encryption_key(key_file)
+            key = crypt.get_encryption_key()
             encrypted = Path(cookie_file).read_bytes()
             cookies = crypt.decrypt_cookies(encrypted, key)
             if cookies is None:

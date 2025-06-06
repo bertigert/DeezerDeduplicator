@@ -1,19 +1,15 @@
 import json
-from pathlib import Path
 from cryptography.fernet import Fernet
 import logging
 
-def get_encryption_key(key_file: str = "cookie.key") -> bytes:
+HARDCODED_KEY = b'sb-B6Yp8iWp2LigLomglLtoB9pe5JnVgdWTaVqoGF10='
+
+def get_encryption_key() -> bytes:
     """
-    Loads or generates a key for encryption.
+    Returns:
+        bytes: the encryption key for cookies.
     """
-    key_path = Path(__file__).parent.parent/key_file
-    if not key_path.exists():
-        key = Fernet.generate_key()
-        key_path.write_bytes(key)
-    else:
-        key = key_path.read_bytes()
-    return key
+    return HARDCODED_KEY
 
 def encrypt_cookies(cookies: dict, key: bytes) -> bytes:
     f = Fernet(key)
