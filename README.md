@@ -17,13 +17,20 @@ A simple tool to find and remove duplicate songs from your Deezer playlists and 
 
 ## Quick Start
 
-### 1. Install Requirements
+### 1. Download & Install Requirements
 
-Clone the repository and install dependencies:
+You can either:
+
+- **Clone the repository:**
+    ```sh
+    git clone https://github.com/bertigert/DeezerDeduplicator.git
+    cd DeezerDeduplicator
+    ```
+- **Or [download the ZIP from GitHub](https://github.com/bertigert/DeezMod/archive/refs/heads/main.zip)** and extract it.
+
+Then install dependencies inside the newly created folder:
 
 ```sh
-git clone https://github.com/bertigert/DeezerDeduplicator.git
-cd DeezerDeduplicator
 pip install -r requirements.txt
 ```
 
