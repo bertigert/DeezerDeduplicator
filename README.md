@@ -65,13 +65,16 @@ The 'sid' cookie looks something like this `fr5134c3g321d3c50c14f57ab5d33314b75d
 ```
 $ py .\main.py --help
 usage: main.py [-h] [--log-level [LOG_LEVEL]] [--cookie COOKIE] [--cookie-path COOKIE_PATH] [--dont-store-cookies] [--deduplicate-by {1,2,3}] [--execute] [--only-show] [--playlist-ids PLAYLIST_IDS]
+               [--playlist-names PLAYLIST_NAMES]
+
+Deezer Playlist Deduplicator
 
 options:
   -h, --help            show this help message and exit
   --log-level [LOG_LEVEL], -ll [LOG_LEVEL]
                         Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL). Default is INFO.
   --cookie COOKIE, -c COOKIE
-                        The 'sid' cookie to use for login. If not provided, the script will try to get it from cookies.json.enc. Stores the cookie, if -dsc is not present
+                        The 'sid' cookie to use for login. If not provided, the script will try to get it from cookies.json.enc. Stores the cookie if -dsc is not present
   --cookie-path COOKIE_PATH, -cp COOKIE_PATH
                         The path to the cookie file. Default is 'cookies.json.enc'.
   --dont-store-cookies, -dsc
@@ -81,7 +84,12 @@ options:
   --execute, -e, -x     If set, the script will execute the deduplication. Otherwise, it will only show which songs would be removed.
   --only-show, -os      If set, the script will only show which songs would be removed. No changes will be made to the playlists. Takes precedence over --execute.
   --playlist-ids PLAYLIST_IDS, -pids PLAYLIST_IDS
-                        Comma-separated IDs of the playlists to deduplicate. If 'ALL', all playlists will be deduplicated.
+                        Comma-separated IDs of the playlists to deduplicate (actual id of the playlist, is in url). If 'ALL', all playlists will be deduplicated.
+  --playlist-names PLAYLIST_NAMES, -pnames PLAYLIST_NAMES
+                        Comma-separated names of the playlists to deduplicate. If 'ALL', all playlists will be deduplicated. This is not recommended as duplicate names will lead to both being
+                        deduplicated, use --playlist-ids instead. Use \ to escape commas in names.
 ```
 
-> For debugging purposes, launch main.py with the --log-level=DEBUG arguments
+#### Examples:
+`python main.py -pids=ALL -db=3 -ll=INFO -os`
+Checks for duplicate songs by ISRC and by name in every playlist.

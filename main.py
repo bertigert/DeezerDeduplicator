@@ -2,6 +2,7 @@ import asyncio
 from pathlib import Path
 import logging
 import argparse
+import re
 
 from tabulate import tabulate
 
@@ -159,7 +160,8 @@ async def main(
     deduplicate_by: int = 1,
     only_show: bool = False,
     execute: bool = False,
-    playlist_ids: str = None
+    playlist_ids: str = None,
+    playlist_names: str = None
 ):
     logging.basicConfig(level=log_level, format="[%(asctime)s] (%(levelname)s): %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     
@@ -182,16 +184,21 @@ async def main(
             if playlist_ids.upper() == "ALL":
                 selected_playlist_nos = list(range(0, len(playlists)))
             else:
-                try:
-                    selected_playlist_nos = [int(x.strip()) for x in playlist_ids.split(",")]
-                    selected_playlist_nos = list(set(selected_playlist_nos))
-                    if not all(0 <= x < len(playlists) for x in selected_playlist_nos):
-                        logging.warning("Invalid playlist numbers provided via arguments.")
-                        return
-                except ValueError:
-                    logging.warning("Invalid playlist numbers provided via arguments.")
-                    return
-        else:        
+                selected_playlist_ids = {x.strip() for x in playlist_ids.split(",")}
+                for i, playlist in enumerate(playlists):
+                    if str(playlist[MV.LIST_INDEX_ID]) in selected_playlist_ids:
+                        selected_playlist_nos.append(i)
+        if playlist_names:
+            if playlist_names.upper() == "ALL":
+                selected_playlist_nos = list(range(0, len(playlists)))
+            else:
+                playlist_names = [name.strip().replace("\\,", ",") for name in re.split(r"(?<!\\),", playlist_names)]
+                selected_playlist_names = {x.strip() for x in playlist_names}
+                for i, playlist in enumerate(playlists):
+                    if playlist[MV.LIST_INDEX_TITLE] in selected_playlist_names:
+                        selected_playlist_nos.append(i)
+
+        if len(selected_playlist_nos) == 0:      
             headers = ["No", "Title", "Songs", "ID"]
             print("\nPlaylists:\n" + tabulate(playlists, headers=headers, tablefmt="rounded_grid"))
             
@@ -204,7 +211,6 @@ async def main(
                         playlist_nos = list(range(0, len(playlists)))
                     else:
                         playlist_nos = [int(x.strip()) for x in playlist_nos.split(",")]
-                        playlist_nos = list(set(playlist_nos)) # remove duplicates
                         if not all(0 < x < len(playlists) for x in playlist_nos):
                             logging.warning("Invalid playlist numbers. Please try again.")
                             continue
@@ -215,6 +221,7 @@ async def main(
                     logging.warning("Invalid input. Please enter numbers separated by commas.")
                     continue
         
+        selected_playlist_nos = list(set(selected_playlist_nos))  # remove duplicates
         selected_playlist_titles = ""
         selected_playlist_ids = ""
         for i in selected_playlist_nos:
@@ -244,10 +251,11 @@ async def main(
             logging.info("Really Removing duplicate songs from playlists.")
         elif not execute and not only_show:
             only_show = input("\nOnly show which songs would be removed? (y/n, defaults to yes): ").strip().lower() != "n"
-            if only_show:
-                logging.info("Only showing which songs would be removed. No changes will be made to playlists.")
-            else:
-                logging.info("Really Removing duplicate songs from playlists.")
+        
+        if only_show:
+            logging.info("Only showing which songs would be removed. No changes will be made to playlists.")
+        else:
+            logging.info("Really Removing duplicate songs from playlists.")
   
         removed_songs = await deduplicate_playlists(
             playlists=[ [playlists[i][MV.LIST_INDEX_TITLE], playlists[i][MV.LIST_INDEX_ID] ] for i in selected_playlist_nos],
@@ -274,7 +282,8 @@ if __name__ == "__main__":
     parser.add_argument("--deduplicate-by", "-db", type=int, choices=[1, 2, 3], help="Method to deduplicate by: 1 for ISRC, 2 for song name if it's from the same artist, 3 for both.")
     parser.add_argument("--execute", "-e", "-x", action="store_true", help="If set, the script will execute the deduplication. Otherwise, it will only show which songs would be removed.")
     parser.add_argument("--only-show", "-os", action="store_true", help="If set, the script will only show which songs would be removed. No changes will be made to the playlists. Takes precedence over --execute.")
-    parser.add_argument("--playlist-ids", "-pids", type=str, help="Comma-separated IDs of the playlists to deduplicate. If 'ALL', all playlists will be deduplicated.")
+    parser.add_argument("--playlist-ids", "-pids", type=str, help="Comma-separated IDs of the playlists to deduplicate (actual id of the playlist, is in url). If 'ALL', all playlists will be deduplicated.")
+    parser.add_argument("--playlist-names", "-pnames", type=str, help="Comma-separated names of the playlists to deduplicate. If 'ALL', all playlists will be deduplicated. This is not recommended as duplicate names will lead to both being deduplicated, use --playlist-ids instead. Use \\ to escape commas in names.")
     args = parser.parse_args()
     
     log_level = getattr(logging, args.log_level.upper(), logging.INFO)
@@ -286,5 +295,6 @@ if __name__ == "__main__":
         deduplicate_by=args.deduplicate_by,
         execute=args.execute,
         only_show=args.only_show,
-        playlist_ids=args.playlist_ids
+        playlist_ids=args.playlist_ids,
+        playlist_names=args.playlist_names
     ))
