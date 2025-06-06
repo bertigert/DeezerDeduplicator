@@ -4,7 +4,12 @@ import logging
 
 from library import crypt
 
-async def get_cookies_with_manual_login(url: str="https://account.deezer.com/login/", cookie_file_path:str ="cookies.json.enc", dont_store_cookies: bool = False) -> dict | None:
+async def get_cookies_with_manual_login(
+    url: str = "https://account.deezer.com/login/",
+    cookie_file_path: str = "cookies.json.enc",
+    dont_store_cookies: bool = False,
+    browser_name: str = "chromium"
+) -> dict | None:
     """
     Opens a URL in a browser and waits until a cookie named 'account_id' is created.
     Then saves all cookies to a local file (encrypted) and closes the browser.
@@ -13,6 +18,7 @@ async def get_cookies_with_manual_login(url: str="https://account.deezer.com/log
         url (str): URL to navigate to
         cookie_file_path (str): Path where cookies will be saved (encrypted)
         dont_store_cookies (bool): If True, do not store cookies to a file
+        browser_name (str): Which Playwright browser to use ("chromium", "firefox", "webkit")
 
     Returns:
         dict: Dictionary of cookies if successful, None otherwise
@@ -20,7 +26,13 @@ async def get_cookies_with_manual_login(url: str="https://account.deezer.com/log
     from playwright.async_api import async_playwright # only import when needed to avoid unnecessary dependencies
 
     async with async_playwright() as playwright:
-        browser = await playwright.chromium.launch(headless=False, args=[
+        # Choose browser based on argument
+        browser_launcher = getattr(playwright, browser_name, None)
+        if browser_launcher is None:
+            logging.warning(f"Invalid browser_name '{browser_name}'. Must be one of: 'chromium', 'firefox', 'webkit'.")
+            browser_launcher = playwright.chromium  # default to chromium if invalid name
+        
+        browser = await browser_launcher.launch(headless=False, args=[
             "--disable-blink-features=AutomationControlled",
         ])
         context = await browser.new_context()

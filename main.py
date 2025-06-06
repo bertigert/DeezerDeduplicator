@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import asyncio
 from pathlib import Path
 import logging
@@ -108,7 +107,8 @@ async def deduplicate_playlists(playlists: list[tuple[int | str]], deduplicate_b
 async def login(
     cookie=None,
     cookie_file="cookies.json.enc",
-    dont_store_cookies=False
+    dont_store_cookies=False,
+    browser_name="chromium"
 ) -> tuple[dict, dict, dict] | tuple[None, None, None]:
     """
     Logs in to Deezer using cookies or manual login if cookies are not provided or invalid.
@@ -116,6 +116,7 @@ async def login(
         cookie (str, optional): SID cookie to use for login. If None, try to load from file or manual login.
         cookie_file (str): Path to the cookie file.
         dont_store_cookies (bool): If True, do not store cookies to a file.
+        browser_name (str): Which Playwright browser to use ("chromium", "firefox", "webkit")
     Returns:
         tuple: User data, cookies, and API request data if login is successful, None otherwise.
     """
@@ -128,13 +129,13 @@ async def login(
         cookie = crypt.decrypt_cookies(encrypted, key)
         if cookie is None:
             logging.error("Failed to decrypt cookies. Please log in manually.")
-            cookie = await browser.get_cookies_with_manual_login(cookie_file_path=cookie_file, dont_store_cookies=dont_store_cookies)
+            cookie = await browser.get_cookies_with_manual_login(cookie_file_path=cookie_file, dont_store_cookies=dont_store_cookies, browser_name=browser_name)
             if cookie is None:
                 logging.error("Failed to retrieve cookies with manual login.")
                 return None, None, None
     else:
         logging.info("No cookies found. Please log in manually.")
-        cookie = await browser.get_cookies_with_manual_login(cookie_file_path=cookie_file, dont_store_cookies=dont_store_cookies)
+        cookie = await browser.get_cookies_with_manual_login(cookie_file_path=cookie_file, dont_store_cookies=dont_store_cookies, browser_name=browser_name)
         if cookie is None:
             logging.error("Failed to retrieve cookies with manual login.")
             return None, None, None
@@ -143,10 +144,10 @@ async def login(
         user_data = await api.validate_cookies()
         if not user_data:
             logging.warning("Cookies are invalid or expired. Attempting to log in manually.")
-            cookie = await browser.get_cookies_with_manual_login(cookie_file_path=cookie_file, dont_store_cookies=dont_store_cookies)
+            cookie = await browser.get_cookies_with_manual_login(cookie_file_path=cookie_file, dont_store_cookies=dont_store_cookies, browser_name=browser_name)
             if cookie is not None:
                 logging.info("Cookies successfully retrieved with manual login.")
-                return await login(cookie=cookie, cookie_file=cookie_file, dont_store_cookies=dont_store_cookies)
+                return await login(cookie=cookie, cookie_file=cookie_file, dont_store_cookies=dont_store_cookies, browser_name=browser_name)
         
             logging.error("Failed to retrieve cookies with manual login.")
             return None, None, None
@@ -162,11 +163,12 @@ async def main(
     only_show: bool = False,
     execute: bool = False,
     playlist_ids: str = None,
-    playlist_names: str = None
+    playlist_names: str = None,
+    browser_name: str = "chromium"
 ):
     logging.basicConfig(level=log_level, format="[%(asctime)s] (%(levelname)s): %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     
-    user_data, *api_args = await login(cookie=cookie, cookie_file=cookie_path, dont_store_cookies=dont_store_cookies)
+    user_data, *api_args = await login(cookie=cookie, cookie_file=cookie_path, dont_store_cookies=dont_store_cookies, browser_name=browser_name)
     if not user_data:
         logging.critical("Login failed. Exiting.")
         return
@@ -285,6 +287,7 @@ if __name__ == "__main__":
     parser.add_argument("--only-show", "-os", action="store_true", help="If set, the script will only show which songs would be removed. No changes will be made to the playlists. Takes precedence over --execute.")
     parser.add_argument("--playlist-ids", "-pids", type=str, help="Comma-separated IDs of the playlists to deduplicate (actual id of the playlist, is in url). If 'ALL', all playlists will be deduplicated.")
     parser.add_argument("--playlist-names", "-pnames", type=str, help="Comma-separated names of the playlists to deduplicate. If 'ALL', all playlists will be deduplicated. This is not recommended as duplicate names will lead to both being deduplicated, use --playlist-ids instead. Use \\ to escape commas in names.")
+    parser.add_argument("--browser", "-b", type=str, default="chromium", choices=["chromium", "firefox", "webkit"], help="Which Playwright browser to use for login (chromium, firefox, webkit). Default: chromium.")
     args = parser.parse_args()
     
     log_level = getattr(logging, args.log_level.upper(), logging.INFO)
@@ -297,5 +300,6 @@ if __name__ == "__main__":
         execute=args.execute,
         only_show=args.only_show,
         playlist_ids=args.playlist_ids,
-        playlist_names=args.playlist_names
+        playlist_names=args.playlist_names,
+        browser_name=args.browser.lower()
     ))

@@ -130,6 +130,9 @@ bash deduplicate.sh --playlist-ids=ALL --deduplicate-by=3 --execute
 - `--playlist-names, -pnames`  
   Comma-separated playlist names (not recommended if you have duplicate names). Use `\` to escape commas in names.
 
+- `--browser, -b`  
+  Which Playwright browser to use for login (`chromium`, `firefox`, or `webkit`). Default: `chromium`.
+
 #### Example
 
 Preview duplicates in all playlists, using both ISRC and name+artist:
