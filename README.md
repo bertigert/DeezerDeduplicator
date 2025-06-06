@@ -54,13 +54,25 @@ See [Playwright Python docs](https://playwright.dev/python/docs/intro) for more 
 
 ### Interactive Mode
 
-Just run:
+#### On Windows
 
-```sh
-python main.py
-```
+- Double-click `run.bat`  
+  **or**
+- Open a terminal and run:
+    ```sh
+    python main.py
+    ```
 
-Or double-click `run.bat`.
+#### On Linux/macOS
+
+- Run in your terminal:
+    ```sh
+    bash run.sh
+    ```
+  or
+    ```sh
+    python3 main.py
+    ```
 
 You'll be guided through login (if needed), playlist selection, and deduplication options.
 
@@ -74,11 +86,20 @@ You can automate everything with arguments:
 python main.py --playlist-ids=ALL --deduplicate-by=3 --execute
 ```
 
-You can also use deduplicate.bat as an alias for "python main.py". Example:
+#### On Windows
 
-```sh
+You can also use `deduplicate.bat` as an alias for `python main.py`:
+```bat
 deduplicate --playlist-ids=ALL --deduplicate-by=3 --execute
 ```
+
+#### On Linux/macOS
+
+You can use `deduplicate.sh`:
+```sh
+bash deduplicate.sh --playlist-ids=ALL --deduplicate-by=3 --execute
+```
+> You might want to `chmod +x` the shell files
 
 #### Common Arguments
 
@@ -122,8 +143,6 @@ Actually remove duplicates:
 ```sh
 python main.py --playlist-ids=ALL --deduplicate-by=3 --execute
 ```
-
----
 
 ## FAQ
 
