@@ -2,7 +2,7 @@ import json
 from cryptography.fernet import Fernet
 import logging
 
-HARDCODED_KEY = b'sb-B6Yp8iWp2LigLomglLtoB9pe5JnVgdWTaVqoGF10='
+HARDCODED_KEY = b"sb-B6Yp8iWp2LigLomglLtoB9pe5JnVgdWTaVqoGF10="
 
 def get_encryption_key() -> bytes:
     """

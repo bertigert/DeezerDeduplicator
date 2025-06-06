@@ -68,7 +68,7 @@ class API:
             if response.status == 200:
                 resp = await response.json()
                 if resp.get("error", []) != []:
-                    logging.debug(f"Error fetching user data: {resp['error']}")
+                    logging.debug(f"Error fetching user data: {resp["error"]}")
                     return None
                 
                 self.request_data["api_token"] = resp["results"]["checkForm"]
@@ -101,7 +101,7 @@ class API:
             if response.status == 200:
                 resp = await response.json()
                 if resp.get("error", []) != []:
-                    logging.debug(f"Error fetching playlists: {resp['error']}")
+                    logging.debug(f"Error fetching playlists: {resp["error"]}")
                     return None
                 
                 playlists = [None]
@@ -145,7 +145,7 @@ class API:
             if response.status == 200:
                 resp = await response.json()
                 if resp.get("error", []) != []:
-                    logging.debug(f"Error fetching songs in playlist {playlist_id}: {resp['error']}")
+                    logging.debug(f"Error fetching songs in playlist {playlist_id}: {resp["error"]}")
                     return None
                 
                 return resp["results"]["data"]
@@ -179,7 +179,7 @@ class API:
             if response.status == 200:
                 resp = await response.json()
                 if resp.get("error", []) != []:
-                    logging.debug(f"Error deleting songs from playlist {playlist_id}: {resp['error']}")
+                    logging.debug(f"Error deleting songs from playlist {playlist_id}: {resp["error"]}")
                     return False
                 
                 return True

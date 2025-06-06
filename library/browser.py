@@ -1,22 +1,24 @@
 import asyncio
 from pathlib import Path
-from playwright.async_api import async_playwright
 import logging
 
 import library.crypt as crypt
 
-async def get_cookies_with_manual_login(url: str="https://account.deezer.com/login/", cookie_file_path:str ="cookies.json.enc") -> dict | None:
+async def get_cookies_with_manual_login(url: str="https://account.deezer.com/login/", cookie_file_path:str ="cookies.json.enc", dont_store_cookies: bool = False) -> dict | None:
     """
     Opens a URL in a browser and waits until a cookie named 'account_id' is created.
     Then saves all cookies to a local file (encrypted) and closes the browser.
-    
+
     Args:
         url (str): URL to navigate to
         cookie_file_path (str): Path where cookies will be saved (encrypted)
-    
+        dont_store_cookies (bool): If True, do not store cookies to a file
+
     Returns:
         dict: Dictionary of cookies if successful, None otherwise
     """
+    from playwright.async_api import async_playwright # only import when needed to avoid unnecessary dependencies
+
     async with async_playwright() as playwright:
         browser = await playwright.chromium.launch(headless=False, args=[
             "--disable-blink-features=AutomationControlled",
@@ -45,18 +47,19 @@ async def get_cookies_with_manual_login(url: str="https://account.deezer.com/log
         await asyncio.sleep(1) # maybe some other cookies need time to be set, just in case
         cookies = cookies_to_aiohttp(await context.cookies())
         
-        parent_dir = Path(__file__).parent.parent
-        cookie_file_path = parent_dir/cookie_file_path
+        if not dont_store_cookies and cookie_file_path:
+            parent_dir = Path(__file__).parent.parent
+            cookie_file_path = parent_dir/cookie_file_path
 
-        key = crypt.get_encryption_key()
-        encrypted = crypt.encrypt_cookies({ # only the sid cookie is needed
-            "sid": cookies["sid"]
-        }, key)
-        Path(cookie_file_path).write_bytes(encrypted)
-        logging.debug(f"Encrypted cookies saved to {cookie_file_path}")
+            key = crypt.get_encryption_key()
+            encrypted = crypt.encrypt_cookies({ # only the sid cookie is needed
+                "sid": cookies["sid"]
+            }, key)
+            Path(cookie_file_path).write_bytes(encrypted)
+            logging.debug(f"Encrypted cookies saved to {cookie_file_path}")
         
         await browser.close()
-        return cookies
+        return {"sid": cookies["sid"]}
 
 
 def cookies_to_aiohttp(cookies: list) -> dict:
