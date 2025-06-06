@@ -13,7 +13,6 @@ A simple tool to find and remove duplicate songs from your Deezer playlists and 
 - **Works interactively or via command-line arguments.**
 - **No Playwright required** if you provide your own Deezer cookie.
 
----
 
 ## Quick Start
 
@@ -29,6 +28,8 @@ You can either:
 - **Or [download the ZIP from GitHub](https://github.com/bertigert/DeezMod/archive/refs/heads/main.zip)** and extract it.
 
 Then install dependencies inside the newly created folder:
+
+Note: This was written in python 3.12, older version might work, newer version might require newer versions of the libraries used.
 
 ```sh
 pip install -r requirements.txt
@@ -48,7 +49,6 @@ playwright install
 ```
 See [Playwright Python docs](https://playwright.dev/python/docs/intro) for more info.
 
----
 
 ## Usage
 
