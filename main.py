@@ -283,7 +283,7 @@ if __name__ == "__main__":
     parser.add_argument("--cookie-path", "-cp", type=str, default="cookies.json.enc", help="The path to the cookie file. Default is 'cookies.json.enc'.")
     parser.add_argument("--dont-store-cookies", "-dsc", action="store_true", help="If set, cookies will not be stored to a file.")
     parser.add_argument("--deduplicate-by", "-db", type=int, choices=[1, 2, 3], help="Method to deduplicate by: 1 for ISRC, 2 for song name if it's from the same artist, 3 for both.")
-    parser.add_argument("--execute", "-e", "-x", action="store_true", help="If set, the script will execute the deduplication. Otherwise, it will only show which songs would be removed.")
+    parser.add_argument("--execute", "-e", "-x", action="store_true", help="If set, the script will execute the deduplication.")
     parser.add_argument("--only-show", "-os", action="store_true", help="If set, the script will only show which songs would be removed. No changes will be made to the playlists. Takes precedence over --execute.")
     parser.add_argument("--playlist-ids", "-pids", type=str, help="Comma-separated IDs of the playlists to deduplicate (actual id of the playlist, is in url). If 'ALL', all playlists will be deduplicated.")
     parser.add_argument("--playlist-names", "-pnames", type=str, help="Comma-separated names of the playlists to deduplicate. If 'ALL', all playlists will be deduplicated. This is not recommended as duplicate names will lead to both being deduplicated, use --playlist-ids instead. Use \\ to escape commas in names.")

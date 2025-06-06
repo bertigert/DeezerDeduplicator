@@ -119,10 +119,10 @@ bash deduplicate.sh --playlist-ids=ALL --deduplicate-by=3 --execute
   1 = ISRC, 2 = Song name & artist, 3 = Both
 
 - `--execute, -e, -x`  
-  Actually remove duplicates (otherwise, just show what would be removed).
+  Actually remove duplicates
 
 - `--only-show, -os`  
-  Only show what would be removed (overrides --execute).
+  Only show what would be removed (overrides --execute) If neither --execute or --only-show is set, the user will be prompted.
 
 - `--playlist-ids, -pids`  
   Comma-separated playlist IDs (from Deezer URL), or `ALL` for all playlists.
