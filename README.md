@@ -91,5 +91,8 @@ options:
 ```
 
 #### Examples:
-`python main.py -pids=ALL -db=3 -ll=INFO -os`
-Checks for duplicate songs by ISRC and by name in every playlist.
+`python main.py -pids=ALL -db=3 -ll DEBUG -os`
+Checks for duplicate songs by ISRC and by name in every playlist and shows you without deleting the songs from the playlist. (Recommended before removing them)
+
+`python main.py -pids=ALL -db=3 -e`
+Checks for duplicate songs by ISRC and by name in every playlist and actually deletes them.
