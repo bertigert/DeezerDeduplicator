@@ -43,14 +43,14 @@ Python Modules:
 
 ## Usage
 
-## Option 1 (Interactive)
+### Option 1 (Interactive)
 1. Double click `run.bat` or launch it from the terminal (preferred) for interactive usage.
 2. Follow instructions in the terminal
 
-## Option 2 (CLI)
+### Option 2 (CLI)
 Run directly from the shell using arguments.
 
-**Important:** 
+#### Important Note: 
 
 If you provide a valid cookie through either of the following options
 - an encrypted json file containing the 'sid' valid cookie, probably created by this script (--cookie-path)
@@ -58,7 +58,7 @@ If you provide a valid cookie through either of the following options
 
 then you **don't** need to have the `playwright` module installed, allowing for use in a terminal only environment. Use DevTools or an extension to get it. Since it is a secure cookie, there really is no legit automated way to get it.
 
-### Arguments
+#### Arguments
 
 ```
 $ py .\main.py --help
