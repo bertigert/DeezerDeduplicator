@@ -32,7 +32,7 @@ async def get_cookies_with_manual_login(url: str="https://account.deezer.com/log
         
         while browser.is_connected() and not page.is_closed():
             cookies = await context.cookies()
-            account_cookie = next((cookie for cookie in cookies if cookie["name"] == "refresh-token"), None)
+            account_cookie = next((cookie for cookie in cookies if cookie["name"] in ("refresh-token", "refresh-token-Deezer", "account_id", "familyUserId", "arl")), None)
             
             if account_cookie:
                 logging.debug("Account cookie found")
@@ -44,7 +44,7 @@ async def get_cookies_with_manual_login(url: str="https://account.deezer.com/log
             await browser.close()
             return None
         
-        # await asyncio.sleep(1) # maybe some other cookies need time to be set, just in case
+        await asyncio.sleep(1) # maybe some other cookies need time to be set, just in case
         cookies = cookies_to_aiohttp(await context.cookies())
         
         if not dont_store_cookies and cookie_file_path:
