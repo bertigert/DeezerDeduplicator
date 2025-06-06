@@ -1,12 +1,13 @@
 import asyncio
 from pathlib import Path
 import logging
-from tabulate import tabulate
 import argparse
 
+from tabulate import tabulate
+
 from library.api import API, MV 
-import library.browser as browser
-import library.crypt as crypt
+from library import browser
+from library import crypt
 
 
 async def deduplicate_playlist(playlist: list[int | str], deduplicate_by: int, _api: API, only_show: bool) -> tuple[list[dict], str, int | str] | tuple[None, str, int | str]:
@@ -20,8 +21,8 @@ async def deduplicate_playlist(playlist: list[int | str], deduplicate_by: int, _
     Returns:
         list: Removed duplicates from the playlist if any, None on error. 
     """
-    deduplicate_by_isrc = deduplicate_by == 1 or deduplicate_by == 3
-    deduplicate_by_name = deduplicate_by == 2 or deduplicate_by == 3
+    deduplicate_by_isrc = deduplicate_by in (1, 3)
+    deduplicate_by_name = deduplicate_by in (2, 3)
 
     NAME = 0
     ID = 1
@@ -50,7 +51,7 @@ async def deduplicate_playlist(playlist: list[int | str], deduplicate_by: int, _
             key = (song_title, song["ART_ID"])
             if key in names:
                 duplicates.append(song)
-                logging.debug(f"Found duplicate song by name: {song_title} by artist ID {song["ART_ID"]} in playlist {playlist[ID]}")
+                logging.debug(f"Found duplicate song by name: {song_title} by artist ID {song['ART_ID']} in playlist {playlist[ID]}")
             else:
                 names[key] = song
 
@@ -63,9 +64,9 @@ async def deduplicate_playlist(playlist: list[int | str], deduplicate_by: int, _
         if did_remove:
             logging.debug(f"Successfully actually removed {len(duplicates)} duplicate songs from playlist {playlist[ID]}")
             return duplicates, playlist[NAME], playlist[ID]
-        else:
-            logging.debug(f"Failed to remove duplicate songs from playlist {playlist[ID]}")
-            return None, playlist[NAME], playlist[ID]
+        
+        logging.debug(f"Failed to remove duplicate songs from playlist {playlist[ID]}")
+        return None, playlist[NAME], playlist[ID]
     else:
         logging.debug(f"No duplicate songs found by ISRC in playlist {playlist[ID]}")
         return None, playlist[NAME], playlist[ID]
@@ -144,9 +145,9 @@ async def login(
             if cookie is not None:
                 logging.info("Cookies successfully retrieved with manual login.")
                 return await login(cookie=cookie, cookie_file=cookie_file, dont_store_cookies=dont_store_cookies)
-            else:
-                logging.error("Failed to retrieve cookies with manual login.")
-                return None, None, None
+        
+            logging.error("Failed to retrieve cookies with manual login.")
+            return None, None, None
 
         return user_data, cookie, api.request_data
 
@@ -214,7 +215,12 @@ async def main(
                     logging.warning("Invalid input. Please enter numbers separated by commas.")
                     continue
         
-        logging.info(f"Selected playlists: {", ".join([playlists[i][MV.LIST_INDEX_TITLE] for i in selected_playlist_nos])} (IDs: {", ".join([str(playlists[i][MV.LIST_INDEX_ID]) for i in selected_playlist_nos])})")
+        selected_playlist_titles = ""
+        selected_playlist_ids = ""
+        for i in selected_playlist_nos:
+            selected_playlist_titles += ", " + playlists[i][MV.LIST_INDEX_TITLE]
+            selected_playlist_ids += ", " + str(playlists[i][MV.LIST_INDEX_ID])
+        logging.info(f"Selected playlists: {selected_playlist_titles[2:]} (IDs: {selected_playlist_ids[2:]})")
 
         if deduplicate_by:
             dedup_by = deduplicate_by
@@ -225,10 +231,10 @@ async def main(
                     dedup_by = int(dedup_by)
                     if 0 < dedup_by < 4:
                         break
-                    else:
-                        logging.warning("Invalid choice. Please enter 1, 2, or 3.")
-                        dedup_by = input("Deduplicate by: ").strip()
-                        continue
+                    
+                    logging.warning("Invalid choice. Please enter 1, 2, or 3.")
+                    dedup_by = input("Deduplicate by: ").strip()
+                    continue
                 except ValueError:
                     logging.warning("Invalid choice. Please enter 1, 2, or 3.")
                     return
@@ -254,7 +260,7 @@ async def main(
             removed_songs, playlist_name, playlist_id = removed_songs_info
             if removed_songs:
                 logging.info(f"Removed {len(removed_songs)} duplicate songs from playlist '{playlist_name}' (ID: {playlist_id})")
-                logging.debug(f"Removed songs: {", ".join([song["SNG_TITLE"]+song.get("VERSION", "") for song in removed_songs])}")
+                logging.debug(f"Removed songs: {', '.join([song['SNG_TITLE']+song.get('VERSION', '') for song in removed_songs])}")
             else:
                 logging.info(f"No duplicate songs found in playlist '{playlist_name}' (ID: {playlist_id})")
 

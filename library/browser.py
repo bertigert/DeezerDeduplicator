@@ -2,7 +2,7 @@ import asyncio
 from pathlib import Path
 import logging
 
-import library.crypt as crypt
+from library import crypt
 
 async def get_cookies_with_manual_login(url: str="https://account.deezer.com/login/", cookie_file_path:str ="cookies.json.enc", dont_store_cookies: bool = False) -> dict | None:
     """

@@ -58,6 +58,8 @@ If you provide a valid cookie through either of the following options
 
 then you **don't** need to have the `playwright` module installed, allowing for use in a terminal only environment. Use DevTools or an extension to get it. Since it is a secure cookie, there really is no legit automated way to get it.
 
+The 'sid' cookie looks something like this `fr5134c3g321d3c50c14f57ab5d33314b75d4eff`
+
 #### Arguments
 
 ```
