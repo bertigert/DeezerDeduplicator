@@ -214,7 +214,7 @@ async def main(
                         playlist_nos = list(range(0, len(playlists)))
                     else:
                         playlist_nos = [int(x.strip()) for x in playlist_nos.split(",")]
-                        if not all(0 < x < len(playlists) for x in playlist_nos):
+                        if not all(0 <= x < len(playlists) for x in playlist_nos):
                             logging.warning("Invalid playlist numbers. Please try again.")
                             continue
                     selected_playlist_nos = playlist_nos

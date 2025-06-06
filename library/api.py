@@ -142,7 +142,7 @@ class API:
             json={
                 "playlist_id": str(playlist_id),
                 "start": 0,
-                "nb": 2000
+                "nb": 10000
             }
         ) as response:
             if response.status == 200:
