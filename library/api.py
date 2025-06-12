@@ -87,6 +87,7 @@ class API:
             dict: User data if cookies are valid, None otherwise.
         """
         user_data = await self.get_user_data()
+        print(user_data)
         if user_data:
             return None if user_data["USER"]["USER_ID"] == MV.NOT_LOGGED_IN_USER_ID else user_data
         return None

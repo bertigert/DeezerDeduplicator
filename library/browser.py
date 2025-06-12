@@ -2,7 +2,7 @@ import asyncio
 from pathlib import Path
 import logging
 
-from library import crypt
+from . import crypt
 
 async def get_cookies_with_manual_login(
     url: str = "https://account.deezer.com/login/",
