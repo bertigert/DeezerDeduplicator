@@ -192,14 +192,11 @@ async def main(
                     if str(playlist[MV.LIST_INDEX_ID]) in selected_playlist_ids:
                         selected_playlist_nos.append(i)
         if playlist_names:
-            if playlist_names.upper() == "ALL":
-                selected_playlist_nos = list(range(0, len(playlists)))
-            else:
-                playlist_names = [name.strip().replace("\\,", ",") for name in re.split(r"(?<!\\),", playlist_names)]
-                selected_playlist_names = {x.strip() for x in playlist_names}
-                for i, playlist in enumerate(playlists):
-                    if playlist[MV.LIST_INDEX_TITLE] in selected_playlist_names:
-                        selected_playlist_nos.append(i)
+            playlist_names = [name.strip().replace("\\,", ",") for name in re.split(r"(?<!\\),", playlist_names)]
+            selected_playlist_names = {x.strip() for x in playlist_names}
+            for i, playlist in enumerate(playlists):
+                if playlist[MV.LIST_INDEX_TITLE] in selected_playlist_names:
+                    selected_playlist_nos.append(i)
 
         if len(selected_playlist_nos) == 0:      
             headers = ["No", "Title", "Songs", "ID"]
@@ -232,18 +229,16 @@ async def main(
             selected_playlist_ids += ", " + str(playlists[i][MV.LIST_INDEX_ID])
         logging.info(f"Selected playlists: {selected_playlist_titles[2:]} (IDs: {selected_playlist_ids[2:]})")
 
-        if deduplicate_by:
-            dedup_by = deduplicate_by
-        else:
-            dedup_by = input("\n[1] ISRC\n[2] Song name if it's from the same artist\n[3] Both\n\nDeduplicate by: ").strip()
+        if not deduplicate_by:
+            deduplicate_by = input("\n[1] ISRC\n[2] Song name if it's from the same artist\n[3] Both\n\nDeduplicate by: ").strip()
             while True:
                 try:
-                    dedup_by = int(dedup_by)
-                    if 0 < dedup_by < 4:
+                    deduplicate_by = int(deduplicate_by)
+                    if 0 < deduplicate_by < 4:
                         break
                     
                     logging.warning("Invalid choice. Please enter 1, 2, or 3.")
-                    dedup_by = input("Deduplicate by: ").strip()
+                    deduplicate_by = input("Deduplicate by: ").strip()
                     continue
                 except ValueError:
                     logging.warning("Invalid choice. Please enter 1, 2, or 3.")
@@ -262,7 +257,7 @@ async def main(
   
         removed_songs = await deduplicate_playlists(
             playlists=[ [playlists[i][MV.LIST_INDEX_TITLE], playlists[i][MV.LIST_INDEX_ID] ] for i in selected_playlist_nos],
-            deduplicate_by=dedup_by,
+            deduplicate_by=deduplicate_by,
             _api=api,
             only_show=only_show
         )
@@ -286,7 +281,7 @@ if __name__ == "__main__":
     parser.add_argument("--execute", "-e", "-x", action="store_true", help="If set, the script will execute the deduplication.")
     parser.add_argument("--only-show", "-os", action="store_true", help="If set, the script will only show which songs would be removed. No changes will be made to the playlists. Takes precedence over --execute.")
     parser.add_argument("--playlist-ids", "-pids", type=str, help="Comma-separated IDs of the playlists to deduplicate (actual id of the playlist, is in url). If 'ALL', all playlists will be deduplicated.")
-    parser.add_argument("--playlist-names", "-pnames", type=str, help="Comma-separated names of the playlists to deduplicate. If 'ALL', all playlists will be deduplicated. This is not recommended as duplicate names will lead to both being deduplicated, use --playlist-ids instead. Use \\ to escape commas in names.")
+    parser.add_argument("--playlist-names", "-pnames", type=str, help="Comma-separated names of the playlists to deduplicate. This is not recommended as duplicate names will lead to both being deduplicated, use --playlist-ids instead. Use \\ to escape commas in names.")
     parser.add_argument("--browser", "-b", type=str, default="chromium", choices=["chromium", "firefox", "webkit"], help="Which Playwright browser to use for login (chromium, firefox, webkit). Default: chromium.")
     args = parser.parse_args()
     
