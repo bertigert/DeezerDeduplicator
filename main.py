@@ -1,5 +1,4 @@
 import asyncio
-from pathlib import Path
 import logging
 import argparse
 import re
